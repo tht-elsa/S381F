@@ -489,7 +489,7 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 10000;
 
-app.listen(PORT, ('0.0.0.0') => {
+app.listen(PORT, () => {
     console.log(`🎵 Music CRUD App Server Started`);
     console.log(`📍 Local: http://localhost:${PORT}`);
     console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
