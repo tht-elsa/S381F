@@ -40,16 +40,17 @@ let music = [
 
 // Home route
 app.get('/', (req, res) => {
-    res.render('login');
+    res.redirect('/login');
 });
 
-// Login page
+// Login page - FIXED: Proper error handling
 app.get('/login', (req, res) => {
-    res.render('login', { error: null });
+    const error = req.query.error || null;
+    res.render('login', { error: error });
 });
 
-// Login handler
-app.post('/login', async (req, res) => {
+// Login handler - FIXED: Proper error passing
+app.post('/login', (req, res) => {
     try {
         const { username, password } = req.body;
         
@@ -57,12 +58,12 @@ app.post('/login', async (req, res) => {
         const user = users.find(u => u.username === username);
         
         if (!user) {
-            return res.render('login', { error: 'User not found' });
+            return res.redirect('/login?error=User not found');
         }
         
         // Simple password check
         if (user.password !== password) {
-            return res.render('login', { error: 'Invalid password' });
+            return res.redirect('/login?error=Invalid password');
         }
         
         // Set session
@@ -72,7 +73,7 @@ app.post('/login', async (req, res) => {
         res.redirect('/dashboard');
     } catch (error) {
         console.error('Login error:', error);
-        res.render('login', { error: 'Server error during login' });
+        res.redirect('/login?error=Server error during login');
     }
 });
 
@@ -291,12 +292,54 @@ app.get('/logout', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something broke!');
+    res.status(500).send(`
+        <div style="text-align: center; padding: 50px; font-family: Arial;">
+            <h1>500 - Server Error</h1>
+            <p>Something went wrong on our end.</p>
+            <p><a href="/">Go back to Home</a></p>
+        </div>
+    `);
 });
 
-// 404 handler
+// 404 handler - FIXED: Simple HTML response instead of trying to render 404.ejs
 app.use((req, res) => {
-    res.status(404).render('404');
+    res.status(404).send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Page Not Found</title>
+            <style>
+                body { 
+                    font-family: Arial, sans-serif; 
+                    text-align: center; 
+                    padding: 50px;
+                    background-color: #f4f4f4;
+                }
+                .container {
+                    background: white;
+                    padding: 40px;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }
+                h1 { color: #e74c3c; }
+                a { 
+                    color: #3498db; 
+                    text-decoration: none;
+                    font-weight: bold;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>404 - Page Not Found</h1>
+                <p>The page you're looking for doesn't exist.</p>
+                <p><a href="/">Go back to Home</a></p>
+            </div>
+        </body>
+        </html>
+    `);
 });
 
 // Start server - CRITICAL FOR RENDER
