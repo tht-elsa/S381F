@@ -289,7 +289,7 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-// Error handling middleware
+// Error handling middleware - SIMPLIFIED
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send(`
@@ -301,44 +301,14 @@ app.use((err, req, res, next) => {
     `);
 });
 
-// 404 handler - FIXED: Simple HTML response instead of trying to render 404.ejs
+// 404 handler - SIMPLIFIED: No 404.ejs required
 app.use((req, res) => {
     res.status(404).send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Page Not Found</title>
-            <style>
-                body { 
-                    font-family: Arial, sans-serif; 
-                    text-align: center; 
-                    padding: 50px;
-                    background-color: #f4f4f4;
-                }
-                .container {
-                    background: white;
-                    padding: 40px;
-                    border-radius: 10px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                }
-                h1 { color: #e74c3c; }
-                a { 
-                    color: #3498db; 
-                    text-decoration: none;
-                    font-weight: bold;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>404 - Page Not Found</h1>
-                <p>The page you're looking for doesn't exist.</p>
-                <p><a href="/">Go back to Home</a></p>
-            </div>
-        </body>
-        </html>
+        <div style="text-align: center; padding: 50px; font-family: Arial;">
+            <h1>404 - Page Not Found</h1>
+            <p>The page you're looking for doesn't exist.</p>
+            <p><a href="/">Go back to Home</a></p>
+        </div>
     `);
 });
 
