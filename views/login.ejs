@@ -4,62 +4,180 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Music CRUD App</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .login-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .demo-accounts {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .demo-accounts h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .demo-account {
+            margin: 0.5rem 0;
+            font-family: monospace;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #c33;
+        }
+        
+        .features {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .features ul {
+            list-style: none;
+        }
+        
+        .features li {
+            padding: 0.25rem 0;
+            color: #666;
+        }
+        
+        .features li:before {
+            content: "✓ ";
+            color: #2ecc71;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-header">
-            <h1>🎵 Music CRUD App</h1>
-            <p>Manage your music collection and vote for preferences</p>
+        <h1>Music CRUD App</h1>
+        <p class="subtitle">Manage your music collection and vote for favorites</p>
+        
+        <% if (error) { %>
+            <div class="error-message">
+                <strong>Error:</strong> <%= error %>
+            </div>
+        <% } %>
+        
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required placeholder="Enter your username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+            
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        
+        <div class="demo-accounts">
+            <h3>Demo Accounts:</h3>
+            <div class="demo-account">
+                <strong>Username:</strong> user1 <strong>Password:</strong> password123
+            </div>
+            <div class="demo-account">
+                <strong>Username:</strong> user2 <strong>Password:</strong> password123
+            </div>
         </div>
         
-        <div class="login-form-container">
-            <h2>Sign In</h2>
-            
-            <% if (error) { %>
-                <div class="alert alert-error">
-                    <strong>Error:</strong> <%= error %>
-                </div>
-            <% } %>
-            
-            <form method="POST" class="login-form">
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
-            </form>
-            
-            <div class="demo-accounts">
-                <h3>Demo Accounts:</h3>
-                <div class="account-list">
-                    <div class="account-item">
-                        <strong>Username:</strong> user1
-                        <strong>Password:</strong> password123
-                    </div>
-                    <div class="account-item">
-                        <strong>Username:</strong> user2
-                        <strong>Password:</strong> password123
-                    </div>
-                </div>
-            </div>
-            
-            <div class="app-info">
-                <h4>App Features:</h4>
-                <ul>
-                    <li>✅ User Authentication</li>
-                    <li>✅ Music CRUD Operations</li>
-                    <li>✅ Voting System</li>
-                    <li>✅ RESTful APIs</li>
-                    <li>✅ Responsive Design</li>
-                </ul>
-            </div>
+        <div class="features">
+            <h3>App Features:</h3>
+            <ul>
+                <li>User Authentication</li>
+                <li>Music CRUD Operations</li>
+                <li>Voting System</li>
+                <li>RESTful APIs</li>
+                <li>Responsive Design</li>
+            </ul>
         </div>
     </div>
 </body>
