@@ -15,7 +15,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Session configuration
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'fallback-secret-key-change-in-production',
+    secret: process.env.SESSION_SECRET || 'music-app-secret-key-2024',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -43,32 +43,44 @@ app.get('/', (req, res) => {
     res.redirect('/login');
 });
 
-// Login page - FIXED: Proper error handling
+// Login page
 app.get('/login', (req, res) => {
     const error = req.query.error || null;
     res.render('login', { error: error });
 });
 
-// Login handler - FIXED: Proper error passing
+// Login handler - ENHANCED WITH DEBUGGING
 app.post('/login', (req, res) => {
+    console.log('Login attempt - Body:', req.body);
+    
     try {
         const { username, password } = req.body;
         
+        if (!username || !password) {
+            console.log('Missing username or password');
+            return res.redirect('/login?error=Username and password are required');
+        }
+        
         // Find user in memory
         const user = users.find(u => u.username === username);
+        console.log('User found:', user);
         
         if (!user) {
+            console.log('User not found:', username);
             return res.redirect('/login?error=User not found');
         }
         
         // Simple password check
         if (user.password !== password) {
+            console.log('Invalid password for user:', username);
             return res.redirect('/login?error=Invalid password');
         }
         
         // Set session
         req.session.userId = user.id;
         req.session.username = user.username;
+        
+        console.log('Login successful - Session set:', req.session);
         
         res.redirect('/dashboard');
     } catch (error) {
@@ -77,15 +89,20 @@ app.post('/login', (req, res) => {
     }
 });
 
-// Dashboard
+// Dashboard - ENHANCED WITH DEBUGGING
 app.get('/dashboard', (req, res) => {
+    console.log('Dashboard access attempt - Session:', req.session);
+    
     if (!req.session.userId) {
+        console.log('No user ID in session, redirecting to login');
         return res.redirect('/login');
     }
     
     try {
         // Sort music by votes (descending)
         const sortedMusic = [...music].sort((a, b) => b.votes - a.votes);
+        
+        console.log('Rendering dashboard for user:', req.session.username);
         
         res.render('dashboard', { 
             username: req.session.username,
@@ -262,6 +279,31 @@ app.get('/check-data', (req, res) => {
     });
 });
 
+// Debug: Check current session
+app.get('/debug-session', (req, res) => {
+    res.json({
+        session: req.session,
+        userId: req.session.userId,
+        username: req.session.username
+    });
+});
+
+// Debug: Check if users exist
+app.get('/debug-users', (req, res) => {
+    res.json({
+        users: users,
+        userCount: users.length
+    });
+});
+
+// Debug login test route
+app.get('/test-login', (req, res) => {
+    // Simulate a successful login
+    req.session.userId = 1;
+    req.session.username = 'user1';
+    res.redirect('/dashboard');
+});
+
 // Reset demo data
 app.get('/reset-demo', (req, res) => {
     // Reset to original demo data
@@ -289,7 +331,7 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-// Error handling middleware - SIMPLIFIED
+// Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send(`
@@ -301,7 +343,7 @@ app.use((err, req, res, next) => {
     `);
 });
 
-// 404 handler - SIMPLIFIED: No 404.ejs required
+// 404 handler
 app.use((req, res) => {
     res.status(404).send(`
         <div style="text-align: center; padding: 50px; font-family: Arial;">
@@ -327,6 +369,9 @@ app.listen(PORT, HOST, () => {
     console.log(`=== Debug Routes ===`);
     console.log('/health - Server health check');
     console.log('/check-data - Check current data');
+    console.log('/debug-session - Check current session');
+    console.log('/debug-users - Check users data');
+    console.log('/test-login - Test login (auto login as user1)');
     console.log('/reset-demo - Reset to demo data');
     console.log(`=================================`);
 });
