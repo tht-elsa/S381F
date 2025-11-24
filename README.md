@@ -110,31 +110,37 @@ Static resources:
 
 ```bash
 # Get all music
-curl -X GET https://your-app-url.onrender.com/api/music
+curl -X GET https://s381f-1.onrender.com/api/music
 
 # Get specific music
-curl -X GET https://your-app-url.onrender.com/api/music/1
+curl -X GET https://s381f-1.onrender.com/api/music/1
 
 # Create new music
-curl -X POST https://your-app-url.onrender.com/api/music \
+curl -X POST https://s381f-1.onrender.com/api/music \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "New Song",
-    "artist": "New Artist",
-    "chords": ["C", "G", "Am"],
-    "notes": "Sample music",
+    "title": "Test Song CRUD",
+    "artist": "Test Artist",
+    "chords": ["C", "G", "Am", "F"],
+    "notes": "This is a test song for CRUD operations",
     "difficulty": "Intermediate",
     "style": "Pop",
     "bpm": 120
   }'
 
 # Update music
-curl -X PUT https://your-app-url.onrender.com/api/music/1 \
+curl -X PUT https://s381f-1.onrender.com/api/music/1 \
   -H "Content-Type: application/json" \
-  -d '{"title": "Updated Title"}'
+  -d '{
+    "title": "Updated Test Song",
+    "artist": "Updated Artist",
+    "chords": ["D", "A", "Bm", "G"],
+    "notes": "This song has been updated via CRUD",
+    "difficulty": "Advanced",
+    "style": "Rock",
+    "bpm": 140
+  }'
 
 # Delete music
-curl -X DELETE https://your-app-url.onrender.com/api/music/1
+curl -X DELETE https://s381f-1.onrender.com/api/music/1
 
-# Get votes
-curl -X GET https://your-app-url.onrender.com/api/votes
