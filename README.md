@@ -129,7 +129,7 @@ curl -X POST https://s381f-1.onrender.com/api/music \
   }'
 
 # Update music
-curl -X PUT https://s381f-1.onrender.com/api/music/1 \
+curl -X PUT https://s381f-1.onrender.com/api/music/3 \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Updated Test Song",
@@ -142,5 +142,5 @@ curl -X PUT https://s381f-1.onrender.com/api/music/1 \
   }'
 
 # Delete music
-curl -X DELETE https://s381f-1.onrender.com/api/music/1
+curl -X DELETE https://s381f-1.onrender.com/api/music/3
 
