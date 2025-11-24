@@ -6,6 +6,127 @@ const fs = require('fs');
 
 const app = express();
 
+// File paths for persistent storage
+const USERS_FILE = path.join(__dirname, 'data', 'users.json');
+const MUSIC_FILE = path.join(__dirname, 'data', 'music.json');
+const VOTES_FILE = path.join(__dirname, 'data', 'votes.json');
+
+// Create data directory if it doesn't exist
+const dataDir = path.join(__dirname, 'data');
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+}
+
+// Load data from files
+function loadUsers() {
+    try {
+        if (fs.existsSync(USERS_FILE)) {
+            const data = fs.readFileSync(USERS_FILE, 'utf8');
+            return JSON.parse(data);
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+    }
+    return []; // Return empty array if file doesn't exist or error
+}
+
+function loadMusic() {
+    try {
+        if (fs.existsSync(MUSIC_FILE)) {
+            const data = fs.readFileSync(MUSIC_FILE, 'utf8');
+            const musicData = JSON.parse(data);
+            // Convert string dates back to Date objects
+            return musicData.map(item => ({
+                ...item,
+                createdAt: new Date(item.createdAt)
+            }));
+        }
+    } catch (error) {
+        console.error('Error loading music:', error);
+    }
+    // Return default music if no file exists
+    return [
+        {
+            id: '1',
+            title: 'Moonlight Sonata',
+            artist: 'Ludwig van Beethoven',
+            chords: ['Cm', 'G', 'Dm', 'Am'],
+            notes: 'Classic piano piece with emotional depth and technical challenges',
+            difficulty: 'Advanced',
+            style: 'Classical',
+            bpm: 60,
+            createdAt: new Date('2024-01-15')
+        },
+        {
+            id: '2',
+            title: 'Sweet Child O\' Mine',
+            artist: 'Guns N\' Roses',
+            chords: ['D', 'C', 'G', 'D'],
+            notes: 'Iconic rock ballad with memorable guitar riff',
+            difficulty: 'Intermediate',
+            style: 'Rock',
+            bpm: 125,
+            createdAt: new Date('2024-01-16')
+        },
+        {
+            id: '3',
+            title: 'Autumn Leaves',
+            artist: 'Joseph Kosma',
+            chords: ['Cm', 'Fm', 'Bb', 'Eb'],
+            notes: 'Jazz standard perfect for improvisation practice',
+            difficulty: 'Intermediate',
+            style: 'Jazz',
+            bpm: 120,
+            createdAt: new Date('2024-01-17')
+        }
+    ];
+}
+
+function loadVotes() {
+    try {
+        if (fs.existsSync(VOTES_FILE)) {
+            const data = fs.readFileSync(VOTES_FILE, 'utf8');
+            const votesData = JSON.parse(data);
+            // Convert string dates back to Date objects
+            return votesData.map(item => ({
+                ...item,
+                votedAt: new Date(item.votedAt)
+            }));
+        }
+    } catch (error) {
+        console.error('Error loading votes:', error);
+    }
+    return [];
+}
+
+// Save data to files
+function saveUsers() {
+    try {
+        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+        console.log('Users saved to file');
+    } catch (error) {
+        console.error('Error saving users:', error);
+    }
+}
+
+function saveMusic() {
+    try {
+        fs.writeFileSync(MUSIC_FILE, JSON.stringify(music, null, 2));
+        console.log('Music saved to file');
+    } catch (error) {
+        console.error('Error saving music:', error);
+    }
+}
+
+function saveVotes() {
+    try {
+        fs.writeFileSync(VOTES_FILE, JSON.stringify(votes, null, 2));
+        console.log('Votes saved to file');
+    } catch (error) {
+        console.error('Error saving votes:', error);
+    }
+}
+
 // Middleware
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -38,78 +159,31 @@ app.use((req, res, next) => {
     next();
 });
 
-// In-memory database (for demo purposes)
-let users = [
-    {
-        id: '1',
-        username: 'user1',
-        password: 'password123', // Plain text for demo
-        email: 'user1@demo.com'
-    },
-    {
-        id: '2', 
-        username: 'user2',
-        password: 'password123',
-        email: 'user2@demo.com'
-    }
-];
+// Load data from files
+let users = loadUsers();
+let music = loadMusic();
+let votes = loadVotes();
 
-let music = [
-    {
-        id: '1',
-        title: 'Moonlight Sonata',
-        artist: 'Ludwig van Beethoven',
-        chords: ['Cm', 'G', 'Dm', 'Am'],
-        notes: 'Classic piano piece with emotional depth and technical challenges',
-        difficulty: 'Advanced',
-        style: 'Classical',
-        bpm: 60,
-        createdAt: new Date('2024-01-15')
-    },
-    {
-        id: '2',
-        title: 'Sweet Child O\' Mine',
-        artist: 'Guns N\' Roses',
-        chords: ['D', 'C', 'G', 'D'],
-        notes: 'Iconic rock ballad with memorable guitar riff',
-        difficulty: 'Intermediate',
-        style: 'Rock',
-        bpm: 125,
-        createdAt: new Date('2024-01-16')
-    },
-    {
-        id: '3',
-        title: 'Autumn Leaves',
-        artist: 'Joseph Kosma',
-        chords: ['Cm', 'Fm', 'Bb', 'Eb'],
-        notes: 'Jazz standard perfect for improvisation practice',
-        difficulty: 'Intermediate',
-        style: 'Jazz',
-        bpm: 120,
-        createdAt: new Date('2024-01-17')
-    }
-];
-
-let votes = [
-    {
-        id: '1',
-        userId: '1',
-        username: 'user1', // Added username
-        favoriteInstrument: 'Guitar',
-        favoriteStyle: 'Rock',
-        difficultyPreference: 'Medium',
-        votedAt: new Date('2024-01-18')
-    },
-    {
-        id: '2',
-        userId: '2',
-        username: 'user2', // Added username
-        favoriteInstrument: 'Piano',
-        favoriteStyle: 'Classical',
-        difficultyPreference: 'Hard',
-        votedAt: new Date('2024-01-19')
-    }
-];
+// Add default demo accounts if no users exist
+if (users.length === 0) {
+    users = [
+        {
+            id: '1',
+            username: 'user1',
+            password: 'password123', // Plain text for demo
+            email: 'user1@demo.com',
+            createdAt: new Date()
+        },
+        {
+            id: '2', 
+            username: 'user2',
+            password: 'password123',
+            email: 'user2@demo.com',
+            createdAt: new Date()
+        }
+    ];
+    saveUsers();
+}
 
 // Authentication Middleware
 const requireAuth = (req, res, next) => {
@@ -198,7 +272,17 @@ app.get('/reset-demo', (req, res) => {
             createdAt: new Date('2024-01-17')
         }
     ];
+    saveMusic();
     res.redirect('/music');
+});
+
+// Backup all data
+app.get('/backup-data', (req, res) => {
+    res.json({
+        users: users,
+        music: music,
+        votes: votes
+    });
 });
 
 // Routes
@@ -310,7 +394,8 @@ app.post('/register', (req, res) => {
         };
         
         users.push(newUser);
-        console.log('New user registered:', newUser);
+        saveUsers(); // Save to file
+        console.log('New user registered and saved:', newUser);
         
         res.render('register', { 
             error: null,
@@ -379,6 +464,7 @@ app.post('/music', requireAuth, (req, res) => {
             createdAt: new Date()
         };
         music.push(newMusic);
+        saveMusic(); // Save to file
         res.redirect('/music');
     } catch (error) {
         console.error('Error creating music:', error);
@@ -436,6 +522,7 @@ app.post('/music/update/:id', requireAuth, (req, res) => {
             bpm: parseInt(bpm)
         };
         
+        saveMusic(); // Save to file
         res.redirect('/music');
     } catch (error) {
         console.error('Error updating music:', error);
@@ -459,6 +546,7 @@ app.post('/music/delete/:id', requireAuth, (req, res) => {
             });
         }
         
+        saveMusic(); // Save to file
         res.redirect('/music');
     } catch (error) {
         console.error('Error deleting music:', error);
@@ -509,6 +597,7 @@ app.post('/vote', requireAuth, (req, res) => {
             votes.push(newVote);
         }
         
+        saveVotes(); // Save to file
         res.redirect('/vote');
     } catch (error) {
         console.error('Error saving vote:', error);
@@ -572,6 +661,7 @@ app.post('/api/music', (req, res) => {
         };
         
         music.push(newMusic);
+        saveMusic(); // Save to file
         
         res.status(201).json({
             success: true,
@@ -603,6 +693,8 @@ app.put('/api/music/:id', (req, res) => {
             createdAt: music[index].createdAt // Prevent creation date change
         };
         
+        saveMusic(); // Save to file
+        
         res.json({
             success: true,
             data: music[index]
@@ -627,6 +719,8 @@ app.delete('/api/music/:id', (req, res) => {
                 error: 'Music not found'
             });
         }
+        
+        saveMusic(); // Save to file
         
         res.json({
             success: true,
@@ -661,6 +755,11 @@ app.get('/health', (req, res) => {
             id: req.sessionID,
             userId: req.session.userId,
             username: req.session.username
+        },
+        data: {
+            users: users.length,
+            music: music.length,
+            votes: votes.length
         }
     });
 });
@@ -700,6 +799,7 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`Access URL: http://0.0.0.0:${PORT}`);
     console.log(`Session Config: resave=true, saveUninitialized=false`);
+    console.log(`Data Storage: JSON files (${users.length} users, ${music.length} music, ${votes.length} votes)`);
     console.log(`=== Demo Accounts ===`);
     console.log(`Username: user1 | Password: password123`);
     console.log(`Username: user2 | Password: password123`);
@@ -710,5 +810,6 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`/debug-users - Check users data`);
     console.log(`/test-login - Test login (auto login as user1)`);
     console.log(`/reset-demo - Reset to demo data`);
+    console.log(`/backup-data - Backup all data`);
     console.log(`=================================`);
 });
